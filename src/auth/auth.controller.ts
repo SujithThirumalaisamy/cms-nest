@@ -22,7 +22,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('signup')
