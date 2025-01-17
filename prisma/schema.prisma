@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  isAdmin   Boolean    @default(false)
+  name      String     @unique
+  email     String     @unique
+  password  String
+  purchases Purchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Course {
+  id            Int       @id @default(autoincrement())
+  title         String
+  imageUrl      String
+  description   String
+  CourseContent Content[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Purchase {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  courseId Int
+
+  User User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+enum ContentType {
+  VIDEO
+  NOTION
+  FOLDER
+}
+
+model Content {
+  id              Int            @id @default(autoincrement())
+  type            ContentType    @default(FOLDER)
+  title           String
+  description     String?
+  thumbnail       String?
+  hidden          Boolean        @default(false)
+  parentId        Int?
+  parentFolder    Content?       @relation("FolderToContent", fields: [parentId], references: [id])
+  subContents     Content[]      @relation("FolderToContent")
+  courseId        Int?
+  course          Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  videoMetadataId Int?
+  videoMetadata   VideoMetadata? @relation(fields: [videoMetadataId], references: [id])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model VideoMetadata {
+  id        Int      @id @default(autoincrement())
+  videoId   String
+  duration  Int
+  thumbnail String
+  createdAt DateTime @default(now())
+
+  isTranscoded Boolean @default(false)
+
+  url_raw   String?
+  url_1080p String?
+  url_720p  String?
+  url_480p  String?
+  url_360p  String?
+  url_240p  String?
+  url_144p  String?
+  Content   Content[]
+}
