@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+import { PrismaService } from 'src/prisma.service';
 
 type AuthInput = {
   name: string;
@@ -20,13 +20,13 @@ type AuthResult = {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService,
+    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(input: AuthInput): Promise<SignInData> {
-    const user = await this.userService.user({
-      name: input.name,
+    const user = await this.prisma.user.findUnique({
+      where: { name: input.name },
     });
     if (user && user.password === input.password) {
       return {

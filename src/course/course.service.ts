@@ -79,8 +79,8 @@ export class CourseService {
       throw new BadRequestException('Course not found');
     }
     return await this.paymentService.purchaseCourse({
+      User: { connect: { id: userId } },
       courseId: id,
-      userId,
     });
   }
 

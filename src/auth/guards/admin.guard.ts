@@ -3,16 +3,16 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class AdminGuard {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly prisma: PrismaService) {}
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const { userId } = request.user;
 
-    const user = await this.usersService.user({ id: userId });
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       throw new ForbiddenException();

@@ -10,10 +10,18 @@ import {
   Post,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
+import {
+  CourseContentCreateDto,
+  CourseContentUpdateDto,
+  CourseCreateDto,
+  CourseUpdateDto,
+} from './dto/course.dto';
 
 //Fix this only we have proper validation pipelines
 type Req = {
@@ -36,9 +44,10 @@ export class CourseController {
   }
 
   @UseGuards(AdminGuard)
+  @UsePipes(ValidationPipe)
   @Post()
-  createCourse(@Request() req: Req) {
-    return this.courseService.createCourse(req.body);
+  createCourse(@Body() body: CourseCreateDto) {
+    return this.courseService.createCourse(body);
   }
 
   @Get(':id')
@@ -49,10 +58,10 @@ export class CourseController {
   @UseGuards(AdminGuard)
   @Patch(':id')
   updateCourse(
-    @Request() req: Req,
+    @Body() body: CourseUpdateDto,
     @Param('id', ParseIntPipe) courseId: number,
   ) {
-    return this.courseService.updateCourse(courseId, req.body);
+    return this.courseService.updateCourse(courseId, body);
   }
 
   @UseGuards(AdminGuard)
@@ -78,11 +87,12 @@ export class CourseController {
 
   @UseGuards(AdminGuard)
   @Post(':id/content')
+  @UsePipes(ValidationPipe)
   createCourseContent(
     @Param('id', ParseIntPipe) courseId: number,
-    @Request() req: Req,
+    @Body() body: CourseContentCreateDto,
   ) {
-    return this.courseService.createCourseContent(courseId, req.body);
+    return this.courseService.createCourseContent(courseId, body);
   }
 
   @Get(':id/content/:contentId')
@@ -98,13 +108,9 @@ export class CourseController {
   updateCourseContent(
     @Param('id', ParseIntPipe) courseId: number,
     @Param('contentId', ParseIntPipe) contentId: number,
-    @Request() req: Req,
+    @Body() body: CourseContentUpdateDto,
   ) {
-    return this.courseService.updateCourseContent(
-      courseId,
-      contentId,
-      req.body,
-    );
+    return this.courseService.updateCourseContent(courseId, contentId, body);
   }
 
   @UseGuards(AdminGuard)
