@@ -4,7 +4,9 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
+  IsUrl,
 } from 'class-validator';
 
 export class CourseCreateDto {
@@ -13,6 +15,7 @@ export class CourseCreateDto {
   title: string;
 
   @IsString()
+  @IsUrl()
   imageUrl: string;
 
   @IsString()
@@ -32,6 +35,7 @@ export class CourseUpdateDto {
 
 export class CourseContentCreateDto {
   @IsEnum(ContentType)
+  @IsOptional()
   type: ContentType;
 
   @IsString()
@@ -42,12 +46,15 @@ export class CourseContentCreateDto {
   description: string;
 
   @IsString()
+  @IsUrl()
   thumbnail: string;
 
   @IsBoolean()
+  @IsOptional()
   hidden: boolean;
 
   @IsNumber()
+  @IsOptional()
   parentId: number;
 
   @IsNumber()
@@ -55,6 +62,7 @@ export class CourseContentCreateDto {
   courseId: number;
 
   @IsNumber()
+  @IsOptional()
   videoMetadataId: number;
 }
 

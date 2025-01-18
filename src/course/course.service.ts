@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Prisma } from '@prisma/client';
+import { ContentType, Prisma } from '@prisma/client';
 import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
@@ -30,11 +30,12 @@ export class CourseService {
   }
 
   async findUserCourses(userId: number) {
-    const purchses = await this.paymentService.findUserPurchases(userId);
+    const purchases = await this.paymentService.findUserPurchases(userId);
+    const courseIds = purchases.map((purchase) => purchase.courseId);
     return this.prisma.course.findMany({
       where: {
         id: {
-          in: purchses.map((purchse) => purchse.courseId),
+          in: courseIds,
         },
       },
     });
@@ -100,6 +101,7 @@ export class CourseService {
     return await this.prisma.content.findMany({
       where: {
         courseId: id,
+        type: ContentType.FOLDER,
       },
     });
   }
@@ -122,11 +124,24 @@ export class CourseService {
     if (!course) {
       throw new BadRequestException('Course not found');
     }
-    return await this.prisma.content.findUnique({
+    const parentContent = await this.prisma.content.findUnique({
       where: {
         id: contentId,
       },
     });
+
+    if (!parentContent) {
+      throw new BadRequestException('Content not found');
+    }
+
+    const contents = await this.prisma.content.findMany({
+      where: {
+        courseId: id,
+        parentId: parentContent?.id,
+      },
+    });
+
+    return { ...parentContent, contents };
   }
 
   async updateCourseContent(
